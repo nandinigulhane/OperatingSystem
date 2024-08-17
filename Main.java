@@ -165,6 +165,7 @@ public class Main {
                     return;
                 }
                 if (buffer[0] == '$' && buffer[1] == 'A' && buffer[2] == 'M' && buffer[3] == 'J') {
+                    jobid = line.substring(4,8);
                     System.out.println("Program Card Detected");
                     System.out.println("Job ID: " + jobid);
                     init();
