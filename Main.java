@@ -24,7 +24,6 @@ public class Main {
     }
 
     public void init() {
-        memory = null;
         memory = new char[100][4];
         memory_used = 0;
         C = 0;
@@ -56,15 +55,20 @@ public class Main {
         IR[3] = '0';
         String line = new String(IR);
         int num = Integer.parseInt(line.substring(2));
-        String string = "";
-        String buff = "";
+        StringBuilder string = new StringBuilder();
+
         for (int i = 0; i < 10; i++) {
-            buff = new String(memory[num + i]);
-            string = string.concat(buff);
+            String buff = new String(memory[num + i]);
+
+            for (char c : buff.toCharArray()) {
+                if (c > 31 && c < 127) {
+                    string.append(c);
+                }
+            }
         }
 
         try {
-            outputfile.write(string);
+            outputfile.write(string.toString());
             outputfile.write("\n");
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,7 +99,12 @@ public class Main {
         }
     }
 
-    public void EXECUTE_USER_FUNCTION() {
+    public void START_EXECUTION() {
+        IC = 0;
+        EXECUTE_USER_PROGRAM();
+    }
+
+    public void EXECUTE_USER_PROGRAM() {
         while (true) {
             if (IC == 100)
                 break;
@@ -134,7 +143,6 @@ public class Main {
                 } else {
                     C = 0;
                 }
-
             } else if (IR[0] == 'B' && IR[1] == 'T') {
                 if (C == 1) {
                     String operand = new String(IR);
@@ -165,18 +173,30 @@ public class Main {
                     return;
                 }
                 if (buffer[0] == '$' && buffer[1] == 'A' && buffer[2] == 'M' && buffer[3] == 'J') {
-                    jobid = line.substring(4,8);
+                    jobid = line.substring(4, 8);
                     System.out.println("Program Card Detected");
                     System.out.println("Job ID: " + jobid);
                     init();
+                    continue;
                 } else if (buffer[0] == '$' && buffer[1] == 'D' && buffer[2] == 'T' && buffer[3] == 'A') {
                     System.out.println("Data Card Detected");
-                    EXECUTE_USER_FUNCTION();
+
+                    for (char[] i : memory) {
+                        for (char c : i) {
+                            if (c == 0)
+                                System.out.print("- ");
+                            else
+                                System.out.print(c + " ");
+                        }
+
+                        System.out.println();
+                    }
+
+                    START_EXECUTION();
                     continue;
                 } else if (buffer[0] == '$' && buffer[1] == 'E' && buffer[2] == 'N' && buffer[3] == 'D') {
                     System.out.println("End Card Detected");
                     System.out.println("Job with " + jobid + " is ended");
-                    MOS(3);
                 }
 
                 for (int i = 0; i < line.length();) {
